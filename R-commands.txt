@@ -1,0 +1,58 @@
+Initializing vectors:
+- logs <- vector("logical", length=5) - taka konstruirame vector, (<the data type>, <length>), default value is: 0
+- v <- c(5, 7, -5, 4, 3, D) - indexing starts from 1!
+- v[3] = -5
+- v[c(4, 1, 2)] - shte ni izvede, stojnostta na 4-to, 1-vo i 2-ro mqsto
+- v[-2] - prints all elements except from the second one; 5, -5, 4, 3, D
+- v[-c(4, 1, 2)] - prints: -5, 3, 0
+- len <- length(v) - =6
+- c(1:len) = 1, 2, 3, ... len
+- v[-c(1:len)] - prints nothing
+
+Sort:
+- w <- sort(v)
+- v[order(v)] - returns v as sorted
+- v[v %% 2 == 0] - returns just the even nums from v
+- v[v > 4] - returns just the nums from v, which are > then 4
+
+If\Else:
+n <- o
+m <- ifelse(<condition>, <value if true>, <value if false>) // something like the ternary operator
+
+Functions:
+bools <- c(T, T, F, F, T)
+- any(bools) - returns true if just one is true
+- all(bools) - returns true if all are true
+- duplicated(bools) - returns true if min 2 elements are equal to each other
+- unique(bools) - returns a vector from all unique elements from the given vector in the brackets (bools) - in our case
+
+Agregating functions:
+- diff(c(1,2,3,7,-5)) - gledame gi po dvoiki i novoobrazuwaniq vector e = c(2-1, 3-2, 7-3, -5-7) = (1, 1, 4, -12)
+- cumsum(c(1,2,3,7,-5)) - purviq si ostava sushtiq, vtoriq e sum na purvite dva, tretiq na purvite tri i tn
+- rep(<element>, <times>, <each=>) - kato repeat,
+- primerno: rep(1, 3) = (1, 1, 1)
+- rep(c(1,2), <times=>3) = (1, 2, 1, 2, 1, 2) - da se povtori po 3 puti vectora - (1,2)
+- rep(c(1, 2), <each=>3) = (1, 1, 1, 2, 2, 2) - vseki element da e povtoren po 3 puti
+- seq(<from - start=>, <to - stop=>, <by - step=>):
+- seq(1, 10, 2) = (1, 3, 5, 7, 9)
+- seq(10, 1, -2) = (10, 8, 6, 4, 2)
+- seq(1, n, 1) equal to seq(1:n) - pod default stupkata e 1
+
+Matrix:
+- ako iskame tazi matrica -> ((1, 2, 4);(7, 8, 9)):
+- M <- rbind(c(1,2,4),c(7,8,9)) - obrazuva matricata 2x3, slaga gi edno pod drugo
+- M <- cbind(c(1,2,4),c(7,8,9)) - obrazuva matricata 3x2, slaga gi edno do drugo - po koloni - 1,2,4 i drugata kolona: 7,8,9
+- matrix(<vector with the values>, <nrow=>, <ncd=>, <byrow=>)
+matrix(c(1:16), 4, 4) - matricata se podrejda po koloni 1,2,3,4 - purvata kolona i tn...
+matrix(c(1:16), 4, 4, TRUE) - matricata se podrejda po redove 1,2,3,4 - purviq red ...
+- M[3] - returns 9 - po default slaga edinica otpred = M[1,3]
+- M[3,] - returns the whole third line
+- M[,3] - returns the whole third column
+- M[c(1,2), c(3,4)] - vrushta kato matrica purviq?
+- M[1,4] - returns 13
+- v <- c(5,6,7); v^2 = (25, 36, 49)
+
+
+- !sample(<vector of values>, <size>, <replace>):
+- sample(c(1, 100), 10, true) - iskam ot tozi vector da mi izberesh 10 elementa s vrushtane, zashtoto replace=true
+- sample(c(1, 100), 10, false) - shte izteglq razlichni chisla

@@ -1,0 +1,16 @@
+#Tasks from week1
+#1
+
+exp.balls <- function() {
+  t <- sample(c(1:8), size=2, replace=T) # returns a vector with two selected el
+  t[1]
+  t[1] == t[2] #is the first el = to the second
+}
+
+# N - how many times we want to execute our experiment
+prob.balls <- function(N) {
+  results <- replicate(N, exp.balls()) # returns vector of bools - exp.balls called N times
+  sum(results)/N # we get how many times have we got equal balls
+}
+
+prob.balls(100000)
