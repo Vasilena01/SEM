@@ -1,6 +1,23 @@
-#Tasks from week1
-#1
+# Tasks from week1
+# Examples
+v <- c(5, 7, -5, 4, 3)
+v[v %% 2 == 0]
+v[order(v)]
 
+len <- length(v)
+v <- c(1:len)
+v
+v[-c(1:len)]
+
+# Conditions
+n <- 10
+m <- ifelse(n=-10, 2*n, n/2)
+m
+
+bools <- c(T, T, F, F, T)
+any(bools)
+
+# Task 1
 exp.balls <- function() {
   t <- sample(c(1:8), size=2, replace=T) # returns a vector with two selected el
   t[1]
