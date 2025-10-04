@@ -31,3 +31,61 @@ prob.balls <- function(N) {
 }
 
 prob.balls(100000)
+
+# Task 2
+exp.socks <- function() {
+    # creates an array with pairs(repeats each num 2 times): 1,1,2,2,3,3
+    v <- rep(c(1,2,3), each=2) 
+    s <- sample(v, 2, replace=F) # get 2 nums from v, without replace
+    s[1] == s[2]
+}
+
+prob.socks <- function(N) {
+    results <- replicate(N, exp.socks())
+    sum(results) / N
+}
+
+prob.socks(100000)
+
+# Task 3
+exp.keys <- function() {
+    bools <- c(F, F, F, T) # we represent the keys with T or F
+    v <- sample(bools, 4, replace=F) # get a rndm permutation of the 4 elements
+    v[4] # return the 4th element value
+}
+
+prob.keys <- function(N) {
+    results <- replicate(N, exp.keys())
+    sum(results)/N
+}
+
+prob.keys(100000)
+
+# Task 4
+exp.questions <- function() {
+    questions <- c(rep(T, 17), rep(F, 3))
+    exam_questions <- sample(questions, 2, F)
+    # return is the first question F or the second
+    exam_questions[1] == F | exam_questions[2] == F 
+}
+
+prob.questions <- function(N) {
+    results <- replicate(N, exp.questions())
+    sum(results)/N
+}
+
+prob.questions(100000)
+
+# Task 5
+exp.birthday <- function() {
+    dates <- sample(c(1:365), 25, T) # get one num between 1-365
+    has_duplicates <- anyDuplicated(dates) != 0
+    has_duplicates
+}
+
+prob.birthday <- function(N) {
+    results <- replicate(N, exp.birthday())
+    sum(results)/N
+}
+
+prob.birthday(100000)

@@ -25,6 +25,11 @@ bools <- c(T, T, F, F, T)
 - all(bools) - returns true if all are true
 - duplicated(bools) - returns true if min 2 elements are equal to each other
 - unique(bools) - returns a vector from all unique elements from the given vector in the brackets (bools) - in our case
+- !sample(<vector of values>, <count of elements to pick>, <with replace?>):
+    sample(c(1, 100), 10, true) - iskam ot tozi vector da mi izberesh 10 elementa s vrushtane, zashtoto replace=true
+    sample(c(1, 100), 10, false) - shte izteglq razlichni chisla
+- replicate(<num of times to call the function/second arg>, <function/other>)
+- anyDuplicated(<array of nums>) - returns if two or more nums are the same
 
 Agregating functions:
 - diff(c(1,2,3,7,-5)) - gledame gi po dvoiki i novoobrazuwaniq vector e = c(2-1, 3-2, 7-3, -5-7) = (1, 1, 4, -12)
@@ -40,7 +45,7 @@ Agregating functions:
 
 Matrix:
 - ako iskame tazi matrica -> ((1, 2, 4);(7, 8, 9)):
-- M <- rbind(c(1,2,4),c(7,8,9)) - obrazuva matricata 2x3, slaga gi edno pod drugo
+- M <- rbind(c(1,2,4),c(7,8,9)) - obrazuva matricata 2x3, slaga gi edno pod drugo - po redove
 - M <- cbind(c(1,2,4),c(7,8,9)) - obrazuva matricata 3x2, slaga gi edno do drugo - po koloni - 1,2,4 i drugata kolona: 7,8,9
 - matrix(<vector with the values>, <nrow=>, <ncd=>, <byrow=>)
 matrix(c(1:16), 4, 4) - matricata se podrejda po koloni 1,2,3,4 - purvata kolona i tn...
@@ -51,8 +56,3 @@ matrix(c(1:16), 4, 4, TRUE) - matricata se podrejda po redove 1,2,3,4 - purviq r
 - M[c(1,2), c(3,4)] - vrushta kato matrica purviq?
 - M[1,4] - returns 13
 - v <- c(5,6,7); v^2 = (25, 36, 49)
-
-
-- !sample(<vector of values>, <size>, <replace>):
-- sample(c(1, 100), 10, true) - iskam ot tozi vector da mi izberesh 10 elementa s vrushtane, zashtoto replace=true
-- sample(c(1, 100), 10, false) - shte izteglq razlichni chisla
