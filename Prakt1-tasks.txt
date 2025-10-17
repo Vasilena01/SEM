@@ -1,4 +1,4 @@
-# Tasks from week1
+# Tasks from week1 and week2
 # Examples
 v <- c(5, 7, -5, 4, 3)
 v[v %% 2 == 0]
@@ -321,9 +321,15 @@ exp.people <- function() {
     # Ivan and Georgi will be marked as 1, the others will be 0
     people <- c(rep(0, 18), rep(1, 2))
     permutation_people <- sample(people, 20, F)
-    # Get the indicies of the ones using the which function
+    # 1 Get the indicies of the ones using the which function
     one_indicies <- which(permutation_people == 1)
-    one_indicies[1] == one_indicies[2] - 1 
+    one_indicies[1] == one_indicies[2] - 1
+
+    # 2 Make georgi to be 2 and ivan to be 3 and then make diff to the vector and if there is a 1 then they are next to each other 3
+    people <- c(rep(0, 18), 2, 3)
+    permutation_people <- sample(people, 20, F)
+    perm <- abs(diff(permutation_people))
+    is.element(1, perm)
 }
 
 prob.people <- function(N) {

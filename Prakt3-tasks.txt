@@ -1,0 +1,88 @@
+#Tasks from week3 and week4
+# Task 18
+dbinom(2, 10, 1/6)
+pbinom(2, 10, 1/6)
+1 - pbinom(2, 10, 1/6)
+pbinom(8, 10, 1/6) - pbinom(2, 10, 1/6)
+
+(1 - pbinom(2, 10, 1/6)) - (1 - pbinom(8, 10, 1/6))
+
+# Task 19
+пgeom(10, 1/6)
+1 - пgeom(5, 1/6)
+
+# Task 20
+pnbinom(17, 3, 1/6)
+
+# Task 21
+# Solution without hypergeom razpredelenie
+exp.battery <- function() {
+    batteries <- c(rep(1, 5), rep(0, 3))
+    # Choose 2 batteries
+    batteries_pick <- sample(batteries, 2, F)
+    batteries_pick[1] == 0 & batteries_pick[2] == 0
+}
+
+prob.battery <- function(N) {
+    result <- replicate(N, exp.battery())
+    sum(result) / N
+}
+
+prob.battery(100000)
+
+# With hypergeom
+dhyper(2, 3, 5, 2)
+
+# Task 22
+ppois(2, 3)
+
+# Ot <= 3 vadq <= 1 i ostavame samo s tova mejdu 1 i 3
+ppois(3, 3) - ppois(0, 3)
+
+# Task 23
+1 - pbinom(4, 10, 1/4)
+
+# Task 24
+dbinom(138, 143, 0.92)
+
+dbinom(137, 143, 0.92)
+
+
+# Task 25
+pgeom(10, 0.03)
+
+1 - pbinom(1, 50, 0.03)
+
+# Task 26
+1 - phyper(q = 1, m = 3, n = 97, k = 50)
+
+# Task 27
+1 - phyper(1, 90, 2910, 50)
+
+# Task 28
+1 - pgeom(4, 1/10)
+
+1 - pnbinom(39, 10, 1/10)
+
+# Task 29
+1 - ppois(3,4)
+
+# Task 30
+1 - phyper(1, 13, 29, 10)
+
+# Task 31
+# Solution 1:
+1 - pbinom(1, 10, 13/52)
+
+# Solution 2:
+exp.cards <- function() {
+    results <- rbinom(10, 1, 13/52)
+    sum (results) >= 2 
+}
+
+prob.cards <- function(N) {
+    results <- replicate(N, exp.cards())
+    sum(results) / N
+}
+
+prob.cards(100000)

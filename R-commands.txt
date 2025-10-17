@@ -61,3 +61,32 @@ matrix(c(1:16), 4, 4, TRUE) - matricata se podrejda po redove 1,2,3,4 - purviq r
 - M[1,4] - returns 13
 - v <- c(5,6,7); v^2 = (25, 36, 49)
 - rowSums(<matrix>) - returns a vector with the sums of each row of the given matrix
+
+Bernulievo/Binomno razpredelenie functions - вероятността при n "хвърляния" например, да имаме k успеха, с вероятност за всеки успех p
+d - = (точно)
+p - <= (не повече)
+r - random
+
+dbinom(k,n,p) = P(X=k) - hvurlqme, ver da se sluchi edno el subitie (f), returns nums (tochno sled n)
+pbinom(k,n,p) = P(X <= k) - veroqtnostta da se sluchat vsichki el subitiq (F), returns nums (sled ne po-malko/po-golqmo ot n)
+rbinom(N,n,p) = c(...); N - broq puti da izvikame eksperimenta sus stojnosti n, p (neshto kato prob funkciqta, koqto izpolzvahme v zadachite ot prakt1 i prakt2)
+
+Геометрично разпределение - вероятността да изтеглим 1 "успех" при точно или <= n "хвърляния"
+dgeom(k,p) = P(X=k) - izpulnqvame k puti dadeno subitie i kakva e ver. v k ot tezi hvurlqniq da imame pone edin uspeh, kato ver da se sluchat subitiqta e p, (tochno sled n)
+pgeom(k,p) = P(X <= k) - suma na dgeom(i, p), i = 1..k, (sled ne po-malko/po-golqmo ot n)
+rgeom(N, k, p) = c(...) - na purviq izhod imam uspeh, na N-tiq neuspeh i tn
+
+NBinom - вероятността да имаме k - неуспеха, между n - успеха, с вер. на хвърлянето p 
+dnbinom(k,n,p) = P(X=k) - 
+pnbinom(k,n,p) = P(X <= k) - 
+rnbinom(N,n,p)
+
+Hyper - описва вероятността при избор без връщане от м-во с два вида елементи, да бъдат изтеглени определен брой от единия тип елементи
+dhyper(x,m,n,k) - точно x - count of the els from the searched type, m - total count of els from searched type, n - total count of other type els, k - total picks count
+phyper - <= x
+rhyper - random
+
+Pois - вероятността даден брой събития да се случат във фиксиран интервал от време, като знаем тяхната средна честота
+ dpois(x, lambda) - точно x - броя събития да настъпят, като знаем, че в този интервал ппц настъпват -> lambda на брой събития, lambda - среден брой събития, които настъпват в даден интервал
+ ppois (x, l) - <= X
+ rpois(x, l) - random n стойности от разпределението
