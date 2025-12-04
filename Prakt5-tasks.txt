@@ -1,0 +1,53 @@
+# Tasks from praktikum 6 and 7
+
+# Zad 49
+
+library(MASS)
+
+data(survey) # load the survey data from the MASS library
+?survey #gives the description of the survey
+
+exercices <- survey$Exer
+pie(table(exercices))
+barplot(table(exercices))
+
+heights <- survey$Height # непрекъсната случ вел, затова използваме hist
+hist(heights)
+
+# Zad 50
+pulses <- survey$Pulse
+stripchart(pulses, "stack")
+
+# Zad 51
+age <- survey$Age
+summary(age)
+boxplot(age, horizontal = T)
+
+# Zad 52
+v1 <- rep(4, 30)
+v2 <- rep(c(3.5,4.5), 15)
+v3 <- rep(c(3,5), 15)
+v4 <- rep(c(2:6), 6)
+v5 <- rep(c(2,6), 15)
+
+stripchart(v1, "stack")
+median(v4)
+mean(v4)
+quantile(v4)
+
+# Zad 62
+#Pri n = 3, pois
+pois_func <- function() {
+  data <- rpois(3, 3)
+  return(sum(data))
+}
+
+data_simulation <- replicate(10000, pois_func())
+
+# a - histogram
+hist(data_simulation)
+
+# b - emperic function
+plot(ecdf(data_simulation))
+
+curve(pnorm(x, 3, 3), add=T)
