@@ -1,0 +1,683 @@
+sap.ui.define([
+    "sap/ui/test/Opa5",
+    "sap/ui/test/matchers/AggregationLengthEquals",
+    "sap/ui/test/matchers/PropertyStrictEquals",
+    "sap/ui/test/matchers/BindingPath",
+    "sap/ui/test/actions/Press",
+    "sap/ui/test/actions/EnterText",
+    "./Common"
+], function (Opa5, AggregationLengthEquals, PropertyStrictEquals, BindingPath, Press, EnterText, Common) {
+    "use strict";
+
+    var sViewName = "ConnectorSettings";
+    var sDetailsViewName = "ConnectorSettingsDetails";
+    var _originalValues = {};
+
+    Opa5.createPageObjects({
+        onTheConnectorSettingsPage: {
+            baseClass: Common,
+
+            actions: {
+                iClickOnConnectorInTable: function (sConnectorId) {
+                    return this.waitFor({
+                        id: "connectorsTable",
+                        viewName: sViewName,
+                        matchers: function (oTable) {
+                            var aItems = oTable.getItems();
+                            for (var i = 0; i < aItems.length; i++) {
+                                var oContext = aItems[i].getBindingContext("destinations");
+                                if (oContext && oContext.getProperty("id") === sConnectorId) {
+                                    return aItems[i];
+                                }
+                            }
+                            return null;
+                        },
+                        actions: new Press(),
+                        errorMessage: "Did not find connector with ID: " + sConnectorId
+                    });
+                }
+            },
+
+            assertions: {
+                iShouldSeeConnectorsTable: function () {
+                    return this.waitFor({
+                        id: "connectorsTable",
+                        viewName: sViewName,
+                        success: function () {
+                            Opa5.assert.ok(true, "Connectors table is visible");
+                        },
+                        errorMessage: "Did not find the connectors table"
+                    });
+                },
+
+                iShouldSeeConnectorInTable: function (sConnectorId) {
+                    return this.waitFor({
+                        id: "connectorsTable",
+                        viewName: sViewName,
+                        check: function (oTable) {
+                            var aItems = oTable.getItems();
+                            for (var i = 0; i < aItems.length; i++) {
+                                var oContext = aItems[i].getBindingContext("destinations");
+                                if (oContext && oContext.getProperty("id") === sConnectorId) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        },
+                        success: function () {
+                            Opa5.assert.ok(true, "Found connector with ID: " + sConnectorId);
+                        },
+                        errorMessage: "Did not find connector with ID: " + sConnectorId
+                    });
+                }
+            }
+        },
+
+        onTheConnectorSettingsDetailsPage: {
+            baseClass: Common,
+
+            actions: {
+                iClickEditButton: function () {
+                    return this.waitFor({
+                        id: "editButtonConnectorSettings",
+                        viewName: sDetailsViewName,
+                        actions: new Press(),
+                        errorMessage: "Did not find the edit button"
+                    });
+                },
+
+                iClickSaveButton: function () {
+                    return this.waitFor({
+                        id: "saveButtonConnectorSettings",
+                        viewName: sDetailsViewName,
+                        actions: new Press(),
+                        errorMessage: "Did not find the save button"
+                    });
+                },
+
+                iClickCancelButton: function () {
+                    return this.waitFor({
+                        id: "cancelButtonConnectorSettings",
+                        viewName: sDetailsViewName,
+                        actions: new Press(),
+                        errorMessage: "Did not find the cancel button"
+                    });
+                },
+
+                iEnterInitialPullPeriod: function (sValue) {
+                    return this.waitFor({
+                        id: "pullDaysComboBox",
+                        viewName: sDetailsViewName,
+                        actions: function (oComboBox) {
+                            // Extract the number from values like "180 days" or just "180"
+                            var sKey = sValue.toString().replace(/[^0-9]/g, "");
+
+                            oComboBox.setSelectedKey(sKey);
+
+                            // If the key doesn't exist in dropdown, the selectedKey will be empty
+                            // In that case, set the raw value directly to simulate typing
+                            if (!oComboBox.getSelectedKey()) {
+                                oComboBox.setValue(sValue);
+                            }
+
+                            oComboBox.fireSelectionChange({ selectedItem: oComboBox.getSelectedItem() });
+                        },
+                        errorMessage: "Did not find the initial pull period input"
+                    });
+                },
+
+                iClearInitialPullPeriod: function () {
+                    return this.waitFor({
+                        id: "pullDaysComboBox",
+                        viewName: sDetailsViewName,
+                        actions: function (oComboBox) {
+                            oComboBox.setSelectedKey("");
+                            oComboBox.setValue("");
+                            oComboBox.fireSelectionChange({ selectedItem: null });
+                        },
+                        errorMessage: "Did not find the initial pull period input"
+                    });
+                },
+
+                iEnterInvalidPullPeriod: function (sValue) {
+                    return this.waitFor({
+                        id: "pullDaysComboBox",
+                        viewName: sDetailsViewName,
+                        actions: function (oComboBox) {
+                            // Force set an invalid value by directly setting the input value
+                            // This simulates typing a value that's not in the dropdown
+                            oComboBox.setValue(sValue);
+                            oComboBox.setSelectedKey(""); // Clear any selected key
+                            oComboBox.fireSelectionChange({ selectedItem: null });
+                        },
+                        errorMessage: "Did not find the initial pull period input"
+                    });
+                },
+
+                iEnterFilterTabName: function (sValue) {
+                    return this.waitFor({
+                        id: "filterTabNameInput",
+                        viewName: sDetailsViewName,
+                        actions: new EnterText({ text: sValue, clearTextFirst: true }),
+                        errorMessage: "Did not find the filter tab name input"
+                    });
+                },
+
+                iEnterTaskLabel: function (sValue) {
+                    return this.waitFor({
+                        id: "taskLabelInput",
+                        viewName: sDetailsViewName,
+                        actions: new EnterText({ text: sValue, clearTextFirst: true }),
+                        errorMessage: "Did not find the task label input"
+                    });
+                },
+
+                iEnterTranslationValue: function (iRowIndex, sFieldType, sValue) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[iRowIndex]) {
+                                var oRow = aRows[iRowIndex];
+                                // Find the input field based on field type
+                                var aInputs = this._findControlsInRow(oRow, "sap.m.Input");
+                                var oTargetInput = null;
+
+                                if (sFieldType === "groupValue") {
+                                    oTargetInput = aInputs[0]; // First input is filter tab name
+                                }
+                                else if (sFieldType === "labelValue") {
+                                    oTargetInput = aInputs[1]; // Second input is task label
+                                }
+
+                                if (oTargetInput) {
+                                    oTargetInput.setValue(sValue);
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Entered value '" + sValue + "' in row " + iRowIndex + " for field " + sFieldType);
+                        },
+                        errorMessage: "Could not enter translation value for row " + iRowIndex + " and field " + sFieldType
+                    });
+                },
+
+                iSelectLanguageInRow: function (iRowIndex, sLanguageKey) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[iRowIndex]) {
+                                var oRow = aRows[iRowIndex];
+                                var aComboBoxes = this._findControlsInRow(oRow, "sap.m.ComboBox");
+                                if (aComboBoxes[0]) {
+                                    aComboBoxes[0].setSelectedKey(sLanguageKey);
+                                    aComboBoxes[0].fireSelectionChange({ selectedItem: aComboBoxes[0].getSelectedItem() });
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Selected language '" + sLanguageKey + "' in row " + iRowIndex);
+                        },
+                        errorMessage: "Could not select language in row " + iRowIndex
+                    });
+                },
+
+                iClickAddTranslationButton: function () {
+                    return this.waitFor({
+                        controlType: "sap.m.Button",
+                        viewName: sDetailsViewName,
+                        matchers: function (oButton) {
+                            return oButton.getText().indexOf("Add") > -1 || oButton.getText().indexOf("addTranslation") > -1;
+                        },
+                        actions: new Press(),
+                        errorMessage: "Did not find the add translation button"
+                    });
+                },
+
+                iClickDeleteTranslationButton: function (iRowIndex) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[iRowIndex]) {
+                                var oRow = aRows[iRowIndex];
+                                var aButtons = this._findControlsInRow(oRow, "sap.m.Button");
+                                var oDeleteButton = aButtons.find(function(oBtn) {
+                                    return oBtn.getIcon() === "sap-icon://delete";
+                                });
+                                if (oDeleteButton) {
+                                    oDeleteButton.firePress();
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Clicked delete button in row " + iRowIndex);
+                        },
+                        errorMessage: "Could not find delete button in row " + iRowIndex
+                    });
+                },
+
+                _findControlsInRow: function (oRow, sControlType) {
+                    var aControls = [];
+
+                    function findControlsRecursively(oControl) {
+                        if (!oControl) {
+                            return;
+                        }
+
+                        // Check if this control matches the target type
+                        if (oControl.getMetadata && oControl.getMetadata().getName() === sControlType) {
+                            aControls.push(oControl);
+                        }
+
+                        // Only traverse the main content aggregations that are commonly used
+                        var aAggregationsToCheck = ["items", "content", "form", "formContainers", "formElements"];
+
+                        aAggregationsToCheck.forEach(function (sAggName) {
+                            try {
+                                var vAggregation = oControl.getAggregation(sAggName);
+                                if (vAggregation) {
+                                    if (Array.isArray(vAggregation)) {
+                                        vAggregation.forEach(function (oChild) {
+                                            if (oChild) {
+                                                findControlsRecursively(oChild);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        findControlsRecursively(vAggregation);
+                                    }
+                                }
+                            }
+                            catch (e) {
+                                // Skip aggregations that can't be accessed
+                            }
+                        });
+                    }
+
+                    findControlsRecursively(oRow);
+                    return aControls;
+                },
+
+                iRememberCurrentValues: function () {
+                    return this.waitFor({
+                        id: "ObjectPageLayout",
+                        viewName: sDetailsViewName,
+                        success: function (oObjectPage) {
+                            var oModel = oObjectPage.getModel("connectorDetailsModel");
+                            var oData = oModel.getData();
+                            _originalValues = JSON.parse(JSON.stringify(oData));
+                            Opa5.assert.ok(true, "Remembered current values for comparison");
+                        },
+                        errorMessage: "Could not remember current values"
+                    });
+                }
+            },
+
+            assertions: {
+                iShouldBeInDisplayMode: function () {
+                    return this.waitFor({
+                        id: "editButtonConnectorSettings",
+                        viewName: sDetailsViewName,
+                        matchers: new PropertyStrictEquals({ name: "visible", value: true }),
+                        success: function () {
+                            Opa5.assert.ok(true, "Page is in display mode (edit button is visible)");
+                        },
+                        errorMessage: "Page is not in display mode"
+                    });
+                },
+
+                iShouldBeInEditMode: function () {
+                    return this.waitFor({
+                        id: "saveButtonConnectorSettings",
+                        viewName: sDetailsViewName,
+                        matchers: new PropertyStrictEquals({ name: "visible", value: true }),
+                        success: function () {
+                            Opa5.assert.ok(true, "Page is in edit mode (save button is visible)");
+                        },
+                        errorMessage: "Page is not in edit mode"
+                    });
+                },
+
+                iShouldSeeEditButtonDisabled: function () {
+                    return this.waitFor({
+                        id: "editButtonConnectorSettings",
+                        viewName: sDetailsViewName,
+                        matchers: new PropertyStrictEquals({ name: "enabled", value: false }),
+                        success: function () {
+                            Opa5.assert.ok(true, "Edit button is disabled");
+                        },
+                        errorMessage: "Edit button is not disabled"
+                    });
+                },
+
+                iShouldSeeSuccessToast: function () {
+                    return this.waitFor({
+                        pollingInterval: 100,
+                        check: function () {
+                            return Opa5.getJQuery()(".sapMMessageToast").length > 0;
+                        },
+                        success: function () {
+                            var sToastText = Opa5.getJQuery()(".sapMMessageToast").text();
+                            Opa5.assert.ok(sToastText.indexOf("successfully") > -1, "Success toast message is shown: " + sToastText);
+                        },
+                        errorMessage: "Success toast was not shown"
+                    });
+                },
+
+                iShouldSeeCancelToast: function () {
+                    return this.waitFor({
+                        pollingInterval: 100,
+                        check: function () {
+                            return Opa5.getJQuery()(".sapMMessageToast").length > 0;
+                        },
+                        success: function () {
+                            var sToastText = Opa5.getJQuery()(".sapMMessageToast").text();
+                            Opa5.assert.ok(sToastText.indexOf("cancelled") > -1 || sToastText.indexOf("canceled") > -1,
+                                "Cancel toast message is shown: " + sToastText);
+                        },
+                        errorMessage: "Cancel toast was not shown"
+                    });
+                },
+
+                iShouldSeeInitialPullPeriod: function (sExpectedValue) {
+                    return this.waitFor({
+                        viewName: sDetailsViewName,
+                        autoWait: false,
+                        success: function (aViews) {
+                            var oView = aViews[0];
+                            var oModel = oView.getModel("connectorDetailsModel");
+                            var sActualValue = oModel.getProperty("/simpleSettings/tc.inbox.pull.days");
+                            Opa5.assert.strictEqual(sActualValue, sExpectedValue,
+                                "Initial pull period should be " + sExpectedValue + " but was " + sActualValue);
+                        },
+                        errorMessage: "Could not verify initial pull period"
+                    });
+                },
+
+                iShouldSeeFilterTabName: function (sExpectedValue) {
+                    return this.waitFor({
+                        viewName: sDetailsViewName,
+                        autoWait: false,
+                        success: function (aViews) {
+                            var oView = aViews[0];
+                            var oModel = oView.getModel("connectorDetailsModel");
+                            var sActualValue = oModel.getProperty("/translatableSettings/tc.ui.group/defaultValue");
+                            Opa5.assert.strictEqual(sActualValue, sExpectedValue,
+                                "Filter tab name should be '" + sExpectedValue + "' but was '" + sActualValue + "'");
+                        },
+                        errorMessage: "Could not verify filter tab name"
+                    });
+                },
+
+                iShouldSeeTaskLabel: function (sExpectedValue) {
+                    return this.waitFor({
+                        viewName: sDetailsViewName,
+                        autoWait: false,
+                        success: function (aViews) {
+                            var oView = aViews[0];
+                            var oModel = oView.getModel("connectorDetailsModel");
+                            var sActualValue = oModel.getProperty("/translatableSettings/tc.ui.label/defaultValue");
+                            Opa5.assert.strictEqual(sActualValue, sExpectedValue,
+                                "Task label should be '" + sExpectedValue + "' but was '" + sActualValue + "'");
+                        },
+                        errorMessage: "Could not verify task label"
+                    });
+                },
+
+                iShouldSeeTranslationValue: function (iRowIndex, sFieldType, sExpectedValue) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[iRowIndex]) {
+                                var oRow = aRows[iRowIndex];
+                                var aInputs = this._findControlsInRow(oRow, "sap.m.Input");
+                                var oTargetInput = null;
+
+                                if (sFieldType === "groupValue") {
+                                    oTargetInput = aInputs[0];
+                                }
+                                else if (sFieldType === "labelValue") {
+                                    oTargetInput = aInputs[1];
+                                }
+
+                                return oTargetInput && oTargetInput.getValue() === sExpectedValue;
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Translation value for row " + iRowIndex + " field " + sFieldType + " is: " + sExpectedValue);
+                        },
+                        errorMessage: "Translation value for row " + iRowIndex + " field " + sFieldType + " is not: " + sExpectedValue
+                    });
+                },
+
+                iShouldSeeLanguageSelectedInRow: function (iRowIndex, sExpectedLanguageKey) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[iRowIndex]) {
+                                var oRow = aRows[iRowIndex];
+                                var aComboBoxes = this._findControlsInRow(oRow, "sap.m.ComboBox");
+                                return aComboBoxes[0] && aComboBoxes[0].getSelectedKey() === sExpectedLanguageKey;
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Language in row " + iRowIndex + " is: " + sExpectedLanguageKey);
+                        },
+                        errorMessage: "Language in row " + iRowIndex + " is not: " + sExpectedLanguageKey
+                    });
+                },
+
+                iShouldSeeTranslationRowsCount: function (iExpectedCount) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            return aRows && aRows.length === iExpectedCount;
+                        },
+                        success: function () {
+                            Opa5.assert.ok(true, "Translation rows count is: " + iExpectedCount);
+                        },
+                        errorMessage: "Translation rows count is not: " + iExpectedCount
+                    });
+                },
+
+                iShouldSeeDeleteButtonHiddenInFirstRow: function () {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[0]) {
+                                var oRow = aRows[0];
+                                var aButtons = this._findControlsInRow(oRow, "sap.m.Button");
+                                var oDeleteButton = aButtons.find(function (oBtn) {
+                                    return oBtn.getIcon() === "sap-icon://delete";
+                                });
+                                // Check that delete button exists but is not visible
+                                return oDeleteButton && !oDeleteButton.getVisible();
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Delete button is hidden in first row");
+                        },
+                        errorMessage: "Delete button is not hidden in first row"
+                    });
+                },
+
+                iShouldSeeDeleteButtonVisibleInRow: function (iRowIndex) {
+                    return this.waitFor({
+                        id: "translationsContainer",
+                        viewName: sDetailsViewName,
+                        check: function (oContainer) {
+                            var aRows = oContainer.getItems();
+                            if (aRows && aRows[iRowIndex]) {
+                                var oRow = aRows[iRowIndex];
+                                var aButtons = this._findControlsInRow(oRow, "sap.m.Button");
+                                var oDeleteButton = aButtons.find(function (oBtn) {
+                                    return oBtn.getIcon() === "sap-icon://delete";
+                                });
+                                // Check that delete button exists and is visible
+                                return oDeleteButton && oDeleteButton.getVisible();
+                            }
+                            return false;
+                        }.bind(this),
+                        success: function () {
+                            Opa5.assert.ok(true, "Delete button is visible in row " + iRowIndex);
+                        },
+                        errorMessage: "Delete button is not visible in row " + iRowIndex
+                    });
+                },
+
+                iShouldSeeOriginalValues: function () {
+                    return this.waitFor({
+                        id: "ObjectPageLayout",
+                        viewName: sDetailsViewName,
+                        check: function (oObjectPage) {
+                            var oModel = oObjectPage.getModel("connectorDetailsModel");
+                            var oCurrentData = oModel.getData();
+
+                            // Compare key values with original
+                            return (
+                                oCurrentData.selectedConnector.initialPullPeriod === _originalValues.selectedConnector.initialPullPeriod &&
+                                JSON.stringify(oCurrentData.translations) === JSON.stringify(_originalValues.translations)
+                            );
+                        },
+                        success: function () {
+                            Opa5.assert.ok(true, "Original values are restored");
+                        },
+                        errorMessage: "Original values are not restored"
+                    });
+                },
+
+                // iShouldNotSeeLanguageInDropdown: function (iRowIndex, sLanguageKey) {
+                //     return this.waitFor({
+                //         id: "translationsContainer",
+                //         viewName: sDetailsViewName,
+                //         check: function (oContainer) {
+                //             var aRows = oContainer.getItems();
+                //             if (aRows && aRows[iRowIndex]) {
+                //                 var oRow = aRows[iRowIndex];
+                //                 var aComboBoxes = this._findControlsInRow(oRow, "sap.m.ComboBox");
+                //                 if (aComboBoxes[0]) {
+                //                     var aItems = aComboBoxes[0].getItems();
+                //                     // Check if the language key is NOT in the dropdown items
+                //                     var bLanguageFound = aItems.some(function(oItem) {
+                //                         return oItem.getKey() === sLanguageKey;
+                //                     });
+                //                     return !bLanguageFound;
+                //                 }
+                //             }
+                //             return false;
+                //         }.bind(this),
+                //         success: function () {
+                //             Opa5.assert.ok(true, "Language '" + sLanguageKey + "' is correctly not available in dropdown for row " + iRowIndex);
+                //         },
+                //         errorMessage: "Language '" + sLanguageKey + "' should not be available in dropdown for row " + iRowIndex + " but was found"
+                //     });
+                // },
+
+                // iShouldSeeLanguageInDropdown: function (iRowIndex, sLanguageKey) {
+                //     return this.waitFor({
+                //         id: "translationsContainer",
+                //         viewName: sDetailsViewName,
+                //         check: function (oContainer) {
+                //             var aRows = oContainer.getItems();
+                //             if (aRows && aRows[iRowIndex]) {
+                //                 var oRow = aRows[iRowIndex];
+                //                 var aComboBoxes = this._findControlsInRow(oRow, "sap.m.ComboBox");
+                //                 if (aComboBoxes[0]) {
+                //                     var aItems = aComboBoxes[0].getItems();
+                //                     // Check if the language key IS in the dropdown items
+                //                     var bLanguageFound = aItems.some(function(oItem) {
+                //                         return oItem.getKey() === sLanguageKey;
+                //                     });
+                //                     return bLanguageFound;
+                //                 }
+                //             }
+                //             return false;
+                //         }.bind(this),
+                //         success: function () {
+                //             Opa5.assert.ok(true, "Language '" + sLanguageKey + "' is available in dropdown for row " + iRowIndex);
+                //         },
+                //         errorMessage: "Language '" + sLanguageKey + "' should be available in dropdown for row " + iRowIndex + " but was not found"
+                //     });
+                // },
+
+                iShouldSeeConnectorTitle: function (sExpectedTitle) {
+                    return this.waitFor({
+                        controlType: "sap.m.Title",
+                        viewName: sDetailsViewName,
+                        matchers: new PropertyStrictEquals({ name: "text", value: sExpectedTitle }),
+                        success: function () {
+                            Opa5.assert.ok(true, "Connector title is: " + sExpectedTitle);
+                        },
+                        errorMessage: "Connector title is not: " + sExpectedTitle
+                    });
+                },
+
+                // _findControlsInRow: function (oRow, sControlType) {
+                //     var aControls = [];
+
+                //     function findControls(oControl) {
+                //         if (!oControl || !oControl.getMetadata) {
+                //             return;
+                //         }
+
+                //         // Check if this control matches the target type
+                //         if (oControl.getMetadata().getName() === sControlType) {
+                //             aControls.push(oControl);
+                //         }
+
+                //         // Use _mAllAggregations from metadata for more robust discovery
+                //         var oMetadata = oControl.getMetadata();
+                //         var mAllAggregations = oMetadata._mAllAggregations || {};
+
+                //         // Iterate through all aggregations defined in metadata
+                //         Object.keys(mAllAggregations).forEach(function(sAggregationName) {
+                //             try {
+                //                 var vAggregation = oControl.getAggregation(sAggregationName);
+                //                 if (vAggregation) {
+                //                     if (Array.isArray(vAggregation)) {
+                //                         vAggregation.forEach(function(oItem) {
+                //                             if (oItem) {
+                //                                 findControls(oItem);
+                //                             }
+                //                         });
+                //                     }
+                //                     else {
+                //                         findControls(vAggregation);
+                //                     }
+                //                 }
+                //             }
+                //             catch (e) {
+                //                 // Some aggregations might throw errors when accessed, skip them
+                //             }
+                //         });
+                //     }
+
+                //     findControls(oRow);
+                //     return aControls;
+                // }
+            }
+        }
+    });
+});
